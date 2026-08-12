@@ -125,54 +125,55 @@ def clean_text(text: str) -> str:
 
 def generate_pdf(articles: list, output_path: str):
     pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
 
     font_name = "Helvetica"
-
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
 
     # Cover
     pdf.set_font(font_name, "B", 24)
-    pdf.cell(0, 15, "Daily News Digest", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 15, "Daily News Digest", ln=True, align="C")
     pdf.set_font(font_name, "", 12)
-    pdf.cell(0, 10, date_str, align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 10, f"Top {len(articles)} Longest Articles in Past 24 Hours", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, date_str, ln=True, align="C")
+    pdf.cell(0, 10, f"Top {len(articles)} Longest Articles in Past 24 Hours", ln=True, align="C")
     pdf.ln(10)
 
     # Table of Contents
     pdf.set_font(font_name, "B", 16)
-    pdf.cell(0, 10, "Table of Contents", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "Table of Contents", ln=True)
     pdf.set_font(font_name, "", 10)
     for i, a in enumerate(articles, 1):
-        title = a["title"][:80]
+        title = clean_text(a["title"][:80])
         chars = a.get("content_length", 0)
-        pdf.cell(0, 7, f"{i}. {title}  ({chars:,} chars)", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 7, f"{i}. {title}  ({chars:,} chars)", ln=True)
     pdf.ln(5)
 
     # Articles
+    page_w = pdf.w - pdf.l_margin - pdf.r_margin
     for i, a in enumerate(articles, 1):
         pdf.add_page()
         pdf.set_font(font_name, "B", 16)
-        pdf.multi_cell(0, 8, f"Article {i}", align="L")
+        pdf.cell(0, 8, f"Article {i}", ln=True)
         pdf.set_font(font_name, "B", 14)
-        pdf.multi_cell(0, 8, clean_text(a["title"]), align="L")
+        pdf.cell(page_w, 8, clean_text(a["title"][:120]), ln=True)
         pdf.set_font(font_name, "", 9)
-        pdf.cell(0, 6, f"Source: {a.get('source_name', 'Unknown')}  |  Length: {a.get('content_length', 0):,} chars", new_x="LMARGIN", new_y="NEXT")
-        pdf.cell(0, 6, f"URL: {a['url']}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 6, f"Source: {a.get('source_name', 'Unknown')}  |  Length: {a.get('content_length', 0):,} chars", ln=True)
+        pdf.cell(0, 6, f"URL: {clean_text(a['url'][:100])}", ln=True)
         pdf.ln(4)
 
         pdf.set_font(font_name, "B", 11)
-        pdf.cell(0, 7, "Summary", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 7, "Summary", ln=True)
         pdf.set_font(font_name, "", 10)
-        content = a.get("summary", "")[:800]
-        pdf.multi_cell(0, 6, clean_text(content), align="L")
-        pdf.ln(3)
+        summary = clean_text(a.get("summary", ""))[:800]
+        pdf.write(6, summary)
+        pdf.ln(6)
 
         pdf.set_font(font_name, "B", 11)
-        pdf.cell(0, 7, "Full Content", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 7, "Full Content", ln=True)
         pdf.set_font(font_name, "", 9)
-        content = a.get("full_content", a.get("summary", "No content available"))
-        pdf.multi_cell(0, 5, clean_text(content), align="L")
+        full = clean_text(a.get("full_content", a.get("summary", "No content available")))
+        pdf.write(5, full)
 
     pdf.output(output_path)
     print(f"  PDF saved: {output_path} ({os.path.getsize(output_path)/1024:.1f} KB)")
