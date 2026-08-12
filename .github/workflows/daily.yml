@@ -1,41 +1,74 @@
 name: Daily News Digest
 
+
 on:
+
   schedule:
+
     - cron: '0 0 * * *'  # Daily at 00:00 UTC
+
   workflow_dispatch:  # Manual trigger
 
+
 permissions:
+
   contents: read
 
+
 jobs:
+
   run:
+
     runs-on: ubuntu-latest
+
     steps:
+
       - name: Checkout
+
         uses: actions/checkout@v4
 
+
       - name: Setup Python
+
         uses: actions/setup-python@v5
+
         with:
+
           python-version: '3.11'
+
           cache: 'pip'
 
+
       - name: Install dependencies
+
         run: pip install -r requirements.txt
 
+
       - name: Download CJK fonts
+
         run: |
+
           mkdir -p fonts
+
           curl -L -o fonts/NotoSansCJK-Regular.ttc "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
+
           curl -L -o fonts/NotoSansCJK-Bold.ttc "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Bold.otf"
+
         continue-on-error: true
 
+
       - name: Run
+
         env:
+
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
+
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
           MAIL_TO: ${{ secrets.MAIL_TO }}
+
         run: python main.py
