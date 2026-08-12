@@ -118,6 +118,11 @@ def fetch_full_content(url: str) -> str:
 # ============================================================
 # Step 2: PDF Generation
 # ============================================================
+def clean_text(text: str) -> str:
+    """Remove unsupported Unicode characters, keep only ASCII printable."""
+    return "".join(c if 32 <= ord(c) <= 126 else " " for c in text)
+
+
 def generate_pdf(articles: list, output_path: str):
     pdf = FPDF()
     pdf.add_page()
