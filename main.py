@@ -122,16 +122,7 @@ def generate_pdf(articles: list, output_path: str):
     pdf = FPDF()
     pdf.add_page()
 
-    font_dir = os.path.join(os.path.dirname(__file__), "fonts")
-    font_regular = os.path.join(font_dir, "NotoSansCJK-Regular.ttc")
-    font_bold = os.path.join(font_dir, "NotoSansCJK-Bold.ttc")
-
-    if os.path.exists(font_regular):
-        pdf.add_font("CJK", "", font_regular, uni=True)
-        pdf.add_font("CJK", "B", font_bold, uni=True)
-        font_name = "CJK"
-    else:
-        font_name = "Helvetica"
+    font_name = "Helvetica"
 
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M UTC")
 
