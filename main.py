@@ -155,7 +155,7 @@ def generate_pdf(articles: list, output_path: str):
         pdf.set_font(font_name, "B", 16)
         pdf.multi_cell(0, 8, f"Article {i}", align="L")
         pdf.set_font(font_name, "B", 14)
-        pdf.multi_cell(0, 8, a["title"], align="L")
+        pdf.multi_cell(0, 8, clean_text(a["title"]), align="L")
         pdf.set_font(font_name, "", 9)
         pdf.cell(0, 6, f"Source: {a.get('source_name', 'Unknown')}  |  Length: {a.get('content_length', 0):,} chars", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(0, 6, f"URL: {a['url']}", new_x="LMARGIN", new_y="NEXT")
@@ -165,14 +165,14 @@ def generate_pdf(articles: list, output_path: str):
         pdf.cell(0, 7, "Summary", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_name, "", 10)
         content = a.get("summary", "")[:800]
-        pdf.multi_cell(0, 6, content, align="L")
+        pdf.multi_cell(0, 6, clean_text(content), align="L")
         pdf.ln(3)
 
         pdf.set_font(font_name, "B", 11)
         pdf.cell(0, 7, "Full Content", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_name, "", 9)
         content = a.get("full_content", a.get("summary", "No content available"))
-        pdf.multi_cell(0, 5, content, align="L")
+        pdf.multi_cell(0, 5, clean_text(content), align="L")
 
     pdf.output(output_path)
     print(f"  PDF saved: {output_path} ({os.path.getsize(output_path)/1024:.1f} KB)")
